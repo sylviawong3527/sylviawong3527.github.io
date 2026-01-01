@@ -1,51 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My GitHub Pages Site</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            height: 100vh;
-            background: url('images/sky.jpg') no-repeat center center/cover;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-align: center;
-        }
-        .container {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 20px;
-            border-radius: 10px;
-        }
-        h1 {
-            font-size: 3em;
-        }
-        nav {
-            margin-top: 20px;
-        }
-        a {
-            color: white;
-            text-decoration: none;
-            margin: 0 15px;
-            font-size: 1.2em;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My GitHub Pages Site</title>
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+        font-family: Arial, sans-serif;
+        height: 100vh;
+        background: url('images/sky.jpg') no-repeat center center/cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-align: center;
+    }
+    .container {
+        background: rgba(0, 0, 0, 0.4);
+        padding: 20px;
+        border-radius: 10px;
+    }
+    h1 { font-size: 3em; }
+    nav { margin-top: 20px; }
+
+    nav a {
+        color: white;         
+        text-decoration: none;
+        margin: 0 15px;
+        font-size: 1.1em;
+    }
+
+    
+    .dropdown {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+    }
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        top: 42px;
+        left: 0;
+        background: rgba(0,0,0,0.4);
+
+        border-radius: 5px;
+        padding: 10px;
+        text-align: left;
+        z-index: 1;
+        white-space: nowrap;
+    }
+    .dropdown-content a {
+        display: block;
+        margin: 5px 0;
+        color: white;         
+        text-decoration: none;
+        font-size: 0.8em;
+    }
+    .dropdown.show .dropdown-content { display: block; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Hi, it's you</h1>
-        <nav>
-            <a href="projects.html">Projects</a>
-            <a href="blog.html">Blog</a>
-        </nav>
-    </div>
+<div class="container">
+    <h1>Hi, it's you</h1>
+    <nav>
+        <div class="dropdown" id="toolingsDropdown">
+            <a onclick="toggleDropdown()">Toolings</a> 
+            <div class="dropdown-content">
+                <a href="https://sylviawong3527.github.io/rent-or-buy.homes/#N4IgRgrgngkgdgBwgFwM4gFygQJwPYICmOyUACjgJYDGhmAjAKwAMrrANCACZ4DucZAIZQAtoTjIyxWhMEBzOhgBMjTiLwk58wvGTFCqZACVBegIJw4EQQBtMANgB0AdlUh1m7QBViIgJqEgjjoGADMzJwAFnhiZgi4hNSUppR4cADC8jiYoY5u1DZ4qJRwculFaFI4MsjaAELQmEqcqIQ2NiVlFahVNdoAym12GG64BMSkXoIAHibmltbD9I70nCWoEDiCcLQWXACygiV6cNu0c4QWVrYMUXiCAGKElws3GBHuQXIltlOzpoolAAWNQaZBaBS6fSGAAihC4EGoyFScEwyBwEEInEKpR8OBEmQQlFqNgA4kc4Kg-hcKOMSFAGG5atMHjhnoTibZySUzOoIBJMCw2B8AGaUDqlfq1ZAQEIgQ44KjwkAAX04bIk8CQaEwoGomw1yH2aWQkRsUCM4mQvLw-OQgrY6qtpPwvFNFyuixyeRagliqAAEjFLvE2UkUmk0RisSBWjZEnouPAAG4GZBiCQAeQQyMjGBA-TIfhAnH1hhiKbTGeMhBlOFRGHoHxxcjxBMERJJ3Mp1IBlcM1cZapAHYQg2QyNKIWw+AAVgmUQEgiEmC1orxMqhIpmUJgRbZWqWDVaADLbOTWBSYEDiVUqoA" target="_blank">Rent or Buy Webapp</a>
+               
+            </div>
+        </div>
+        <a href="blog.html">Writing</a> 
+    </nav>
+</div>
+
+<script>
+    function toggleDropdown() {
+        document.getElementById("toolingsDropdown").classList.toggle("show");
+    }
+    window.onclick = function(e) {
+        if (!e.target.matches('#toolingsDropdown a')) {
+            var dropdown = document.getElementById("toolingsDropdown");
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            }
+        }
+    }
+</script>
 </body>
 </html>

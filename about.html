@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Me</title>
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        background-color: #000; /* 黑色背景 */
+        color: #fff; /* 白色文字 */
+        font-family: 'Courier New', Courier, monospace; /* 键盘打字风格 */
+        font-size: 1rem; /* 字体调小 */
+        font-weight: 550;
+        padding: 20px; /* 离边缘留点空间 */
+        letter-spacing: -0.02em;
+    }
+
+    .typewriter {
+        display: inline;
+        border-right: 2px solid #fff; /* 光标 */
+        white-space: nowrap;
+        overflow: hidden;
+        animation: blink 0.7s step-end infinite;
+    }
+
+    @keyframes blink {
+        50% { border-color: transparent; }
+    }
+</style>
+</head>
+<body>
+    <div class="typewriter" id="typewriter"></div>
+
+    <script>
+        const text = "Still working on how to describe myself. TBD.";
+        const typewriter = document.getElementById("typewriter");
+        let i = 0;
+
+        function type() {
+            if (i < text.length) {
+                typewriter.innerHTML += text.charAt(i);
+                i++;
+                setTimeout(type, 120); // 打字速度（毫秒）
+            }
+        }
+
+        type();
+    </script>
+</body>
+</html>

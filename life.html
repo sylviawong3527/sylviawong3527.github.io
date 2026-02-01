@@ -3,61 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Life Loop Carousel</title>
+<title>My Life Auto Loop</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #000; overflow: hidden; font-family: sans-serif; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#000; overflow:hidden; font-family:sans-serif; }
 
-  #my-life { position: relative; width: 100vw; height: 100vh; }
+  #my-life { position:relative; width:100vw; height:100vh; }
 
   .life-item {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 320px;
-    height: 570px;
-    transform-origin: center;
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:320px;
+    height:570px;
+    transform-origin:center;
     transition: transform 0.35s ease, opacity 0.35s ease, filter 0.35s ease;
   }
 
   .life-item video,
   .life-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 6px;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:6px;
   }
 
   /* 左右箭头 */
   .arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 60px;
-    color: rgba(255,255,255,0.3);
-    cursor: pointer;
-    user-select: none;
-    z-index: 50;
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:60px;
+    color:rgba(255,255,255,0.3);
+    cursor:pointer;
+    user-select:none;
+    z-index:50;
     transition: color 0.2s;
   }
-  .arrow:hover { color: rgba(255,255,255,0.7); }
-  .arrow-left { left: 20px; }
-  .arrow-right { right: 20px; }
+  .arrow:hover { color:rgba(255,255,255,0.7); }
+  .arrow-left { left:20px; }
+  .arrow-right { right:20px; }
 
   /* 手机 Story 模式 */
-  @media (max-width: 768px) {
-    body { overflow-y: scroll; }
-    #my-life { display: block; scroll-snap-type: y mandatory; }
-    .life-item {
-      position: relative !important;
-      width: 100vw;
-      height: 100vh;
-      transform: none !important;
-      opacity: 1 !important;
-      filter: none !important;
-      scroll-snap-align: start;
+  @media (max-width:768px){
+    body{ overflow-y:scroll; }
+    #my-life{ display:block; scroll-snap-type:y mandatory; }
+    .life-item{
+      position:relative !important;
+      width:100vw;
+      height:100vh;
+      transform:none !important;
+      opacity:1 !important;
+      filter:none !important;
+      scroll-snap-align:start;
     }
-    .arrow { display: none; }
+    .arrow{ display:none; }
   }
 </style>
 </head>
@@ -80,69 +80,67 @@ const items = document.querySelectorAll('.life-item');
 let activeIndex = 0;
 const total = items.length;
 let isScrolling = false;
+const autoInterval = 5000; // 自动切换时间：5秒
 
 function updateLayout() {
-  items.forEach((item, index) => {
+  items.forEach((item,index)=>{
     // 无限循环索引
     let offset = ((index - activeIndex + total) % total);
-    if(offset > total / 2) offset -= total; // 让左右循环自然
+    if(offset > total/2) offset -= total;
 
-    const scale = offset === 0 ? 1 : 0.7;
-    const translateX = offset * 240;
+    const scale = offset===0?1:0.7;
+    const translateX = offset*240;
     const translateY = -50;
-    const opacity = Math.abs(offset) > 2 ? 0 : 0.6;
-    const blur = offset === 0 ? 'none' : 'blur(2px)';
-    const zIndex = 10 - Math.abs(offset);
+    const opacity = Math.abs(offset)>2?0:0.6;
+    const blur = offset===0?'none':'blur(2px)';
+    const zIndex = 10-Math.abs(offset);
 
-    item.style.transform = `
-      translate(-50%, ${translateY}%)
-      translateX(${translateX}px)
-      scale(${scale})
-    `;
-    item.style.opacity = offset === 0 ? 1 : opacity;
+    item.style.transform = `translate(-50%,${translateY}%) translateX(${translateX}px) scale(${scale})`;
+    item.style.opacity = offset===0?1:opacity;
     item.style.filter = blur;
     item.style.zIndex = zIndex;
 
     const video = item.querySelector('video');
     if(video){
-      offset === 0 ? video.play() : video.pause();
+      offset===0?video.play():video.pause();
     }
   });
 }
 
 // 桌面滚轮切换
-window.addEventListener('wheel', (e) => {
-  if(window.innerWidth < 768) return;
+window.addEventListener('wheel',(e)=>{
+  if(window.innerWidth<768) return;
   if(isScrolling) return;
 
-  if(e.deltaY > 0) activeIndex = (activeIndex + 1) % total;
-  if(e.deltaY < 0) activeIndex = (activeIndex - 1 + total) % total;
+  if(e.deltaY>0) activeIndex=(activeIndex+1)%total;
+  if(e.deltaY<0) activeIndex=(activeIndex-1+total)%total;
 
   updateLayout();
-  isScrolling = true;
-  setTimeout(() => isScrolling = false, 150);
+  isScrolling=true;
+  setTimeout(()=>isScrolling=false,150);
 });
 
 // 左右箭头点击切换
-document.querySelector('.arrow-left').addEventListener('click', () => {
-  activeIndex = (activeIndex - 1 + total) % total;
+document.querySelector('.arrow-left').addEventListener('click',()=>{
+  activeIndex=(activeIndex-1+total)%total;
   updateLayout();
 });
-document.querySelector('.arrow-right').addEventListener('click', () => {
-  activeIndex = (activeIndex + 1) % total;
+document.querySelector('.arrow-right').addEventListener('click',()=>{
+  activeIndex=(activeIndex+1)%total;
   updateLayout();
 });
 
 // 键盘左右切换
-window.addEventListener('keydown', (e) => {
-  if(e.key === 'ArrowRight') {
-    activeIndex = (activeIndex + 1) % total;
-    updateLayout();
-  } else if(e.key === 'ArrowLeft') {
-    activeIndex = (activeIndex - 1 + total) % total;
-    updateLayout();
-  }
+window.addEventListener('keydown',(e)=>{
+  if(e.key==='ArrowRight'){ activeIndex=(activeIndex+1)%total; updateLayout(); }
+  else if(e.key==='ArrowLeft'){ activeIndex=(activeIndex-1+total)%total; updateLayout(); }
 });
+
+// 自动轮播
+setInterval(()=>{
+  activeIndex=(activeIndex+1)%total;
+  updateLayout();
+}, autoInterval);
 
 // 初始化
 updateLayout();

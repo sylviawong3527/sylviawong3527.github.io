@@ -6,9 +6,10 @@
 <title>My Life Auto Loop with Progress</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#000; overflow:hidden; font-family:sans-serif; }
+  body { background:#000; font-family:sans-serif; }
 
-  #my-life { position:relative; width:100vw; height:100vh; }
+  /* ===== 桌面端转盘 ===== */
+  #my-life { position:relative; width:100vw; height:100vh; overflow:hidden; }
 
   .life-item {
     position:absolute;
@@ -19,14 +20,8 @@
     transform-origin:center;
     transition: transform 0.35s ease, opacity 0.35s ease, filter 0.35s ease;
   }
-
   .life-item video,
-  .life-item img {
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    border-radius:6px;
-  }
+  .life-item img { width:100%; height:100%; object-fit:cover; border-radius:6px; }
 
   /* 左右箭头 */
   .arrow {
@@ -56,33 +51,28 @@
     max-width:600px;
     z-index:100;
   }
-  .progress-bar {
-    flex:1;
-    height:4px;
-    background:rgba(255,255,255,0.3);
-    border-radius:2px;
-    overflow:hidden;
-  }
-  .progress-bar-inner {
-    height:100%;
-    width:0%;
-    background:#fff;
-    transition: width linear;
-  }
+  .progress-bar { flex:1; height:4px; background:rgba(255,255,255,0.3); border-radius:2px; overflow:hidden; }
+  .progress-bar-inner { height:100%; width:0%; background:#fff; transition: width linear; }
 
-  /* 手机 Story 模式 */
+  /* ===== 手机 Story 模式 ===== */
   @media(max-width:768px){
-    body{ overflow-y:scroll; }
-    #my-life{ display:block; scroll-snap-type:y mandatory; }
+    body{ overflow:hidden; }
+    #my-life{ display:block; scroll-snap-type:none; }
+
     .life-item{
-      position:relative !important;
+      position:absolute !important;
+      top:0;
+      left:0;
       width:100vw;
       height:100vh;
       transform:none !important;
-      opacity:1 !important;
-      filter:none !important;
-      scroll-snap-align:start;
+      opacity:0;
+      transition:opacity 0.5s ease;
+      z-index:0;
     }
+
+    .life-item.active{ opacity:1; z-index:10; }
+
     .arrow{ display:none; }
     #progress-container{ top:5px; }
   }
@@ -104,9 +94,7 @@
   <div class="arrow arrow-right">&#10095;</div>
 
   <!-- 进度条 -->
-  <div id="progress-container">
-    <!-- JS 动态生成 -->
-  </div>
+  <div id="progress-container"></div>
 </div>
 
 <script>
@@ -115,22 +103,23 @@ const progressContainer = document.getElementById('progress-container');
 let activeIndex = 0;
 const total = items.length;
 let isScrolling = false;
-const autoInterval = 5000; // 5秒自动切换
+const autoInterval = 5000; // 5秒
 let progressTimer;
+let autoTimer;
 
-// 初始化进度条
-items.forEach(() => {
+// ===== 初始化进度条 =====
+items.forEach(()=> {
   const bar = document.createElement('div');
-  bar.className = 'progress-bar';
+  bar.className='progress-bar';
   const inner = document.createElement('div');
-  inner.className = 'progress-bar-inner';
+  inner.className='progress-bar-inner';
   bar.appendChild(inner);
   progressContainer.appendChild(bar);
 });
 const progressBars = document.querySelectorAll('.progress-bar-inner');
 
-// 更新转盘布局
-function updateLayout() {
+// ===== 桌面端转盘布局 =====
+function updateDesktop() {
   items.forEach((item,index)=>{
     let offset = ((index - activeIndex + total) % total);
     if(offset > total/2) offset -= total;
@@ -148,37 +137,55 @@ function updateLayout() {
     item.style.zIndex = zIndex;
 
     const video = item.querySelector('video');
-    if(video){
-      offset===0?video.play():video.pause();
+    if(video) offset===0?video.play():video.pause();
+  });
+
+  // 更新进度条
+  progressBars.forEach((bar,i)=>{
+    bar.style.transition='none';
+    bar.style.width=i<activeIndex?'100%':'0%';
+  });
+  requestAnimationFrame(()=> {
+    const currentBar=progressBars[activeIndex];
+    currentBar.style.transition=`width ${autoInterval}ms linear`;
+    currentBar.style.width='100%';
+  });
+}
+
+// ===== 手机 Story 更新 =====
+function updateMobile() {
+  items.forEach((item,i)=>{
+    if(i===activeIndex){
+      item.classList.add('active');
+      const video=item.querySelector('video');
+      if(video) video.play();
+    } else {
+      item.classList.remove('active');
+      const video=item.querySelector('video');
+      if(video) video.pause();
     }
   });
-
-  // 更新进度条状态
-  progressBars.forEach((bar,i)=>{
-    bar.style.transition = 'none';
-    bar.style.width = i<activeIndex?'100%':'0%';
-  });
-  // 动画播放当前条
-  requestAnimationFrame(()=> {
-    const currentBar = progressBars[activeIndex];
-    currentBar.style.transition = `width ${autoInterval}ms linear`;
-    currentBar.style.width = '100%';
-  });
 }
 
-// 自动播放
+// ===== 自动切换 =====
 function startAutoPlay() {
-  clearInterval(progressTimer);
-  progressTimer = setInterval(()=>{
-    activeIndex = (activeIndex+1)%total;
-    updateLayout();
-  }, autoInterval);
+  clearInterval(autoTimer);
+  autoTimer=setInterval(()=>{ nextItem(); }, autoInterval);
 }
 
-// 手动切换重置计时
-function nextItem() { activeIndex=(activeIndex+1)%total; updateLayout(); startAutoPlay(); }
-function prevItem() { activeIndex=(activeIndex-1+total)%total; updateLayout(); startAutoPlay(); }
+// ===== 切换逻辑 =====
+function nextItem(){
+  activeIndex=(activeIndex+1)%total;
+  if(window.innerWidth>768) updateDesktop(); else updateMobile();
+  startAutoPlay();
+}
+function prevItem(){
+  activeIndex=(activeIndex-1+total)%total;
+  if(window.innerWidth>768) updateDesktop(); else updateMobile();
+  startAutoPlay();
+}
 
+// ===== 事件绑定 =====
 // 桌面滚轮
 window.addEventListener('wheel',(e)=>{
   if(window.innerWidth<768) return;
@@ -190,20 +197,29 @@ window.addEventListener('wheel',(e)=>{
   isScrolling=true;
   setTimeout(()=>isScrolling=false,150);
 });
-
-// 箭头点击
+// 左右箭头
 document.querySelector('.arrow-left').addEventListener('click',prevItem);
 document.querySelector('.arrow-right').addEventListener('click',nextItem);
-
 // 键盘
 window.addEventListener('keydown',(e)=>{
   if(e.key==='ArrowRight') nextItem();
   else if(e.key==='ArrowLeft') prevItem();
 });
 
-// 初始化
-updateLayout();
+// ===== 初始化 =====
+if(window.innerWidth>768) updateDesktop();
+else updateMobile();
 startAutoPlay();
+
+// ===== 手机端触控滑动 =====
+let startY=0;
+let endY=0;
+window.addEventListener('touchstart',e=>{ startY=e.touches[0].clientY; });
+window.addEventListener('touchend',e=>{
+  endY=e.changedTouches[0].clientY;
+  if(startY-endY>50) nextItem(); // 上滑
+  if(endY-startY>50) prevItem(); // 下滑
+});
 </script>
 
 </body>
